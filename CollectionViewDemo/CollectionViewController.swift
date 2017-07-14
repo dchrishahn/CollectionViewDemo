@@ -24,7 +24,69 @@ class CollectionViewController: UICollectionViewController {
         let indexPath = IndexPath(item: index, section: 0)
         collectionView?.insertItems(at: [indexPath])
     }
+
+// added to move cell items ...
     
+    override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        if sourceIndexPath.section != destinationIndexPath.section {
+            if sourceIndexPath.section == 0 {
+                let selectedItem = sourceIndexPath.row
+                animalDataItems.insert(plantDataItems[selectedItem], at: destinationIndexPath.row)
+                plantDataItems.remove(at: selectedItem)
+                updateView()
+            } else {
+                let selectedItem = sourceIndexPath.row
+                plantDataItems.insert(animalDataItems[selectedItem], at: destinationIndexPath.row)
+                animalDataItems.remove(at: selectedItem)
+                updateView()
+            }
+            
+        } else {
+            if sourceIndexPath.section == 0 {
+                let tmp = plantDataItems[sourceIndexPath.row]
+                plantDataItems[sourceIndexPath.row] = plantDataItems[destinationIndexPath.row]
+                plantDataItems[destinationIndexPath.row] = tmp
+                
+            } else {
+                let tmp = animalDataItems[sourceIndexPath.row]
+                animalDataItems[sourceIndexPath.row] = animalDataItems[destinationIndexPath.row]
+                animalDataItems[destinationIndexPath.row] = tmp
+            }
+        }
+    }
+    
+// added to delete cell items ...
+
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        func showAlert(title: String, theMessage: String?) {
+            let msg = UIAlertController(title: title, message: nil, preferredStyle: UIAlertControllerStyle.alert)
+            msg.addAction(UIAlertAction(title: "Yes", style: UIAlertActionStyle.default, handler: { action in
+                collectionView.performBatchUpdates({Void in
+                    self.collectionView?.deleteItems(at: [indexPath])
+                    if indexPath.section == 0 {
+                        self.plantDataItems.remove(at: indexPath.item)
+                    
+                    } else {
+                        self.animalDataItems.remove(at: indexPath.item)
+                    }
+                    
+                    self.updateView()
+                }, completion: nil)
+            }))
+            msg.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.cancel, handler: nil))
+            self.present(msg, animated: true, completion: nil)
+        }
+        
+        showAlert(title: "Delete Selected Image?", theMessage: nil)
+    }
+    
+    func updateView () {
+        self.allItems.removeAll()
+        self.allItems.append(self.plantDataItems)
+        self.allItems.append(self.animalDataItems)
+        self.collectionView?.reloadData()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -59,7 +121,6 @@ class CollectionViewController: UICollectionViewController {
         
         allItems.append(plantDataItems)
         allItems.append(animalDataItems)
-        
     }
 
     override func didReceiveMemoryWarning() {
@@ -80,20 +141,15 @@ class CollectionViewController: UICollectionViewController {
     // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return allItems.count
     }
 
-
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
         return allItems[section].count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! DataItemCell
-    
-        // Configure the cell
         let dataItem = allItems[indexPath.section][indexPath.row]
         cell.dataItem = dataItem
 
@@ -130,11 +186,11 @@ class CollectionViewController: UICollectionViewController {
     /*
     // Uncomment these methods to specify if an action menu should be displayed for the specified item, and react to actions performed on the item
     override func collectionView(_ collectionView: UICollectionView, shouldShowMenuForItemAt indexPath: IndexPath) -> Bool {
-        return false
+        return true
     }
-
+    
     override func collectionView(_ collectionView: UICollectionView, canPerformAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) -> Bool {
-        return false
+        return true
     }
 
     override func collectionView(_ collectionView: UICollectionView, performAction action: Selector, forItemAt indexPath: IndexPath, withSender sender: Any?) {
