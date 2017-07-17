@@ -18,75 +18,65 @@ class CollectionViewController: UICollectionViewController {
     var allItems = [[DataItem]]()
     
     @IBAction func addButtonTapped(_ sender: AnyObject) {
-        let item = DataItem(title: "New Item", kind: .Animal, imageName: "images/default.jpeg")
+        let item = DataItem(title: "New Plant", kind: .Plant, imageName: "images/default.jpeg")
         let index = allItems[0].count
         allItems[0].append(item)
+// All array counts not maintaining continuity until one also adds the following line when creating a new "plant" kind in Section "0"
+        plantDataItems.append(item)
         let indexPath = IndexPath(item: index, section: 0)
         collectionView?.insertItems(at: [indexPath])
+        print(" ...... New plant item created  ..... ")
+        print("Plant count ", plantDataItems.count)
+        print("Animal count ", animalDataItems.count)
+        print(allItems)
     }
-
-// added to move cell items ...
+    
+ // added to move cell items ...
     
     override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-        if sourceIndexPath.section != destinationIndexPath.section {
-            if sourceIndexPath.section == 0 {
-                let selectedItem = sourceIndexPath.row
-                animalDataItems.insert(plantDataItems[selectedItem], at: destinationIndexPath.row)
-                plantDataItems.remove(at: selectedItem)
-                updateView()
-            } else {
-                let selectedItem = sourceIndexPath.row
-                plantDataItems.insert(animalDataItems[selectedItem], at: destinationIndexPath.row)
-                animalDataItems.remove(at: selectedItem)
-                updateView()
-            }
-            
-        } else {
-            if sourceIndexPath.section == 0 {
-                let tmp = plantDataItems[sourceIndexPath.row]
-                plantDataItems[sourceIndexPath.row] = plantDataItems[destinationIndexPath.row]
-                plantDataItems[destinationIndexPath.row] = tmp
-                
-            } else {
-                let tmp = animalDataItems[sourceIndexPath.row]
-                animalDataItems[sourceIndexPath.row] = animalDataItems[destinationIndexPath.row]
-                animalDataItems[destinationIndexPath.row] = tmp
-            }
-        }
+        let itemToMove = allItems[sourceIndexPath.section][sourceIndexPath.row]
+        allItems[sourceIndexPath.section].remove(at: sourceIndexPath.row)
+        allItems[destinationIndexPath.section].insert(itemToMove, at: destinationIndexPath.row)
+        print(" ...... After move  ..... ")
+        print("Plant count ", plantDataItems.count)
+        print("Animal count ", animalDataItems.count)
+        print(allItems)
     }
     
 // added to delete cell items ...
-
+    
     override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        func showAlert(title: String, theMessage: String?) {
+          func showAlert(title: String, theMessage: String?) {
             let msg = UIAlertController(title: title, message: nil, preferredStyle: UIAlertControllerStyle.alert)
             msg.addAction(UIAlertAction(title: "Yes", style: UIAlertActionStyle.default, handler: { action in
                 collectionView.performBatchUpdates({Void in
+//              added this .remove line to replace the original if-else statement that follows the next .deleteItems line
+                    self.allItems[indexPath.section].remove(at: indexPath.row)
                     self.collectionView?.deleteItems(at: [indexPath])
+                    /*
                     if indexPath.section == 0 {
                         self.plantDataItems.remove(at: indexPath.item)
                     
                     } else {
                         self.animalDataItems.remove(at: indexPath.item)
                     }
+                    */
                     
-                    self.updateView()
                 }, completion: nil)
+                
+                print(" ..... After delete ..... ")
+                print("Plant count ", self.plantDataItems.count)
+                print("Animal count ", self.animalDataItems.count)
+                print(self.allItems)
             }))
             msg.addAction(UIAlertAction(title: "No", style: UIAlertActionStyle.cancel, handler: nil))
             self.present(msg, animated: true, completion: nil)
         }
         
         showAlert(title: "Delete Selected Image?", theMessage: nil)
+        
     }
     
-    func updateView () {
-        self.allItems.removeAll()
-        self.allItems.append(self.plantDataItems)
-        self.allItems.append(self.animalDataItems)
-        self.collectionView?.reloadData()
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -101,9 +91,9 @@ class CollectionViewController: UICollectionViewController {
         
         for i in 1...12 {
             if i > 9 {
-                plantDataItems.append(DataItem(title: "Title #\(i)", kind: Kind.Plant, imageName: "images/img\(i).jpg"))
+                plantDataItems.append(DataItem(title: "Plant #\(i)", kind: Kind.Plant, imageName: "images/img\(i).jpg"))
             } else {
-                plantDataItems.append(DataItem(title: "Title #0\(i)", kind: Kind.Plant, imageName: "images/img0\(i).jpg"))
+                plantDataItems.append(DataItem(title: "Plant #0\(i)", kind: Kind.Plant, imageName: "images/img0\(i).jpg"))
             }
         }
     
@@ -113,9 +103,9 @@ class CollectionViewController: UICollectionViewController {
         
         for i in 1...12 {
             if i > 9 {
-                animalDataItems.append(DataItem(title: "Another Title #\(i)", kind: Kind.Animal, imageName: "images/anim\(i).jpg"))
+                animalDataItems.append(DataItem(title: "Animal #\(i)", kind: Kind.Animal, imageName: "images/anim\(i).jpg"))
             } else {
-                animalDataItems.append(DataItem(title: "Another Title #0\(i)", kind: Kind.Animal, imageName: "images/anim0\(i).jpg"))
+                animalDataItems.append(DataItem(title: "Animal #0\(i)", kind: Kind.Animal, imageName: "images/anim0\(i).jpg"))
             }
         }
         
@@ -197,5 +187,5 @@ class CollectionViewController: UICollectionViewController {
     
     }
     */
-
+    
 }

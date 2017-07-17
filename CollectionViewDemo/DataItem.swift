@@ -10,7 +10,9 @@
 
 import UIKit
 
-class DataItem {
+class DataItem: CustomStringConvertible {
+    
+    var description: String { return "\(title)" }
     var title: String
     var kind: Kind
     var imageName: String
@@ -23,15 +25,15 @@ class DataItem {
 }
 
 enum Kind: Int {
-    case Plant      // other example used Florida
-    case Animal     // other example used London
+    case Plant
+    case Animal
     
     func description() -> String {
         switch self {
         case .Plant:
-            return "Plants"     // other example used "Orlando, Florida"
+            return "Plants"
         case .Animal:
-            return "Animals"    // other example used "London, United Kingdom"
+            return "Animals"
         }
     }
 }
